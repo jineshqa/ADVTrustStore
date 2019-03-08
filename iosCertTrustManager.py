@@ -568,12 +568,14 @@ class IOSSimulator:
     simulatorDir = os.getenv('HOME') + "/Library/Developer/CoreSimulator/Devices/"
     trustStorePath = "/data/Library/Keychains/TrustStore.sqlite3"
     runtimeName = "com.apple.CoreSimulator.SimRuntime.iOS-"
+    sim_UDID = ""
     
     def __init__(self, simulatordir):
         self._is_valid = False
         infofile = simulatordir + "/device.plist"
         if os.path.isfile(infofile):
             info = plistlib.readPlist(infofile)
+            self.sim_UDID = info["UDID"]
             runtime = info["runtime"]
             if runtime.startswith(self.runtimeName):
                 self.version = runtime[len(self.runtimeName):].replace("-", ".")
@@ -641,17 +643,20 @@ def device_backups():
 #----------------------------------------------------------------------
 
 class Program:
-    def import_to_simulator(self, certificate_filepath, truststore_filepath=None):
+    def import_to_simulator(self, certificate_filepath, device_id, truststore_filepath=None):
         cert = Certificate()
         cert.load_PEMfile(certificate_filepath)
-        print cert.get_subject()
         if truststore_filepath:
             if query_yes_no("Import certificate to " + truststore_filepath, "no") == "yes":
                 tstore = TrustStore(truststore_filepath)
                 tstore.add_certificate(cert)
             return
+
         for simulator in ios_simulators():
-            if query_yes_no("Import certificate to " + simulator.title, "no") == "yes":
+            # print simulator.sim_UDID
+            if simulator.sim_UDID in device_id:
+                # if query_yes_no("Import certificate to " + simulator.title, "no") == "yes":
+                # if 1:
                 print "Importing to " + simulator.truststore_file
                 tstore = TrustStore(simulator.truststore_file)
                 tstore.add_certificate(cert)
@@ -720,6 +725,7 @@ class Program:
         group.add_argument("-l", "--list", help="list custom trusted certificates in IOS simulator", action="store_true")
         group.add_argument("-d", "--delete", help="delete custom trusted certificates in IOS simulator", action="store_true")
         group.add_argument("-a", "--add", help="specifies a certificate file in PEM format to import and add to the IOS simulator trusted list", dest='certificate_file')
+        parser.add_argument("-i", "--deviceid", help="device UDID where certificate needs to be added", dest='device_id')
         group.add_argument("-e", "--export", help="export custom trusted certificates from IOS simulator in PEM format. ", dest='export_base_filename')
         group.add_argument("--dump", help="dump custom trusted certificates records from IOS simulator. ", dest='dump_base_filename')
         group.add_argument("--addfromdump", help="add custom trusted certificates records to IOS simulator from dump file created with --dump. ", dest='adddump_base_filename')
@@ -743,7 +749,7 @@ class Program:
         elif args.delete:
             self.delete_simulator_trustedcertificates(args.truststore)
         elif args.certificate_file:
-            self.import_to_simulator(args.certificate_file, args.truststore)
+            self.import_to_simulator(args.certificate_file, args.device_id, args.truststore)
         elif args.export_base_filename:
             self.export_simulator_trustedcertificates(args.export_base_filename, False, args.truststore)
         elif args.dump_base_filename:
