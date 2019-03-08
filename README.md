@@ -39,7 +39,7 @@ iosCertTrustManager.py --help
 
 To import a certificate form a PEM file:
 
-iosCertTrustManager.py -a certificate_file
+iosCertTrustManager.py -a certificate_file -i AC101887-96C0-43A4-A2DB-FB3DAE1126D3
 
 For each available iOS simulator version it will prompt to install the CA certificate.
 
@@ -65,3 +65,7 @@ This program is free software: you can redistribute it and/or modify it under th
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+Special Notes
+=============
+I have made some minor changes to the script that allows it to accept UDID of the device where you want to install the certificate. Also, script no longer asks for confirmation to install. All credit goes to original author.
