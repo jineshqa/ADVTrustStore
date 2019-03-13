@@ -39,9 +39,9 @@ iosCertTrustManager.py --help
 
 To import a certificate form a PEM file:
 
-iosCertTrustManager.py -a certificate_file -i AC101887-96C0-43A4-A2DB-FB3DAE1126D3
+iosCertTrustManager.py -a certificate_file **-i AC101887-96C0-43A4-A2DB-FB3DAE1126D3**
 
-For each available iOS simulator version it will prompt to install the CA certificate.
+*This script does not prompt before installation certificate as it is meant to be used for automation.*
 
 
 ADVTrustStore files
